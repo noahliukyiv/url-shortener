@@ -1,0 +1,38 @@
+version: "2.3"
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+      MONGO_INITDB_DATABASE: urlshortener
+    ports:
+      - 27017:27017
+
+  redis:
+    image: "redis:alpine"
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  url-shortener:
+    container_name: url-shortener
+    build:
+      context: .
+    ports: 
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - ENV=test
+      - GIN_MODE=release
+      - REDIS_ENDPOINT=redis:6379
+      - REDIS_PASSWORD=
+      - MONGODB_USERNAME=root
+      - MONGODB_PASSWORD=rootpassword
+      - MONGODB_ENDPOINT=mongodb:27017
+      - DEFAULT_EXPIRATION_HOURS=2
+    depends_on:
+      - mongodb
+      - redis
